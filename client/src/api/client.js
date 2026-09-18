@@ -1,11 +1,27 @@
 import axios from "axios";
 
+const resolveBaseUrl = () => {
+  let url = import.meta.env.VITE_API_URL || "/api";
+  if (url.startsWith("http") && !url.replace(/\/$/, "").endsWith("/api")) {
+    url = url.replace(/\/$/, "") + "/api";
+  }
+  return url;
+};
+
 const api = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "/api",
+  baseURL: resolveBaseUrl(),
   withCredentials: true,
   headers: {
     "Content-Type": "application/json",
   },
+});
+
+api.interceptors.request.use((config) => {
+  const token = localStorage.getItem("accessToken");
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
 });
 
 let isRefreshing = false;
@@ -46,10 +62,14 @@ api.interceptors.response.use(
       isRefreshing = true;
 
       try {
-        await api.post("/auth/refresh");
+        const refreshRes = await api.post("/auth/refresh");
+        if (refreshRes.data?.accessToken) {
+          localStorage.setItem("accessToken", refreshRes.data.accessToken);
+        }
         processQueue(null);
         return api(originalRequest);
       } catch (refreshErr) {
+        localStorage.removeItem("accessToken");
         processQueue(refreshErr);
         return Promise.reject(refreshErr);
       } finally {

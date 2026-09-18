@@ -29,6 +29,9 @@ export const AuthProvider = ({ children }) => {
   const login = async (email, password) => {
     const res = await authApi.login({ email, password });
     if (res.data?.success && res.data?.user) {
+      if (res.data.accessToken) {
+        localStorage.setItem("accessToken", res.data.accessToken);
+      }
       setUser(res.data.user);
     }
     return res.data;
@@ -36,6 +39,9 @@ export const AuthProvider = ({ children }) => {
 
   const signup = async (name, email, password) => {
     const res = await authApi.signup({ name, email, password });
+    if (res.data?.accessToken) {
+      localStorage.setItem("accessToken", res.data.accessToken);
+    }
     return res.data;
   };
 
@@ -43,6 +49,7 @@ export const AuthProvider = ({ children }) => {
     try {
       await authApi.logout();
     } finally {
+      localStorage.removeItem("accessToken");
       setUser(null);
     }
   };

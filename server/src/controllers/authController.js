@@ -11,17 +11,19 @@ const generateRefreshToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_REFRESH_SECRET, { expiresIn: "7d" });
 };
 
+const isProd = process.env.NODE_ENV === "production";
+
 const accessCookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
+  secure: isProd,
+  sameSite: isProd ? "none" : "lax",
   maxAge: 15 * 60 * 1000,
 };
 
 const refreshCookieOptions = {
   httpOnly: true,
-  secure: process.env.NODE_ENV === "production",
-  sameSite: "lax",
+  secure: isProd,
+  sameSite: isProd ? "none" : "lax",
   maxAge: 7 * 24 * 60 * 60 * 1000,
 };
 
@@ -132,6 +134,7 @@ const login = async (req, res) => {
       .json({
         success: true,
         message: "Login successful",
+        accessToken,
         user: {
           id: user._id,
           name: user.name,
@@ -197,6 +200,7 @@ const refreshToken = async (req, res) => {
       .json({
         success: true,
         message: "Token refreshed successfully",
+        accessToken: newAccessToken,
       });
   } catch (error) {
     console.error("Refresh token error:", error);

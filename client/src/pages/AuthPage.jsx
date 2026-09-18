@@ -77,7 +77,13 @@ export const AuthPage = () => {
         setAuthMode("login");
       }
     } catch (err) {
-      showToast(err.response?.data?.message || "An authentication error occurred", "error");
+      const errMsg =
+        err.response?.data?.message ||
+        (err.message === "Network Error"
+          ? "Cannot connect to server. Check your network or VITE_API_URL settings."
+          : err.message) ||
+        "An authentication error occurred";
+      showToast(errMsg, "error");
     } finally {
       setLoading(false);
     }
