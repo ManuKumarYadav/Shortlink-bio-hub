@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+*/node_modules/
+
+# Environment & Secrets (NEVER COMMIT ACTUAL SECRETS)
+.env
+.env.local
+.env.*.local
+server/.env
+client/.env
+
+# Allow example configs
+!.env.example
+!server/.env.example
+
+# Build outputs
+dist/
+dist-ssr/
+client/dist/
+build/
+
+# Logs & OS artifacts
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+.DS_Store
+.idea/
+.vscode/
