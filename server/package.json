@@ -6,10 +6,10 @@
     "start": "node src/server.js",
     "dev": "nodemon src/server.js"
   },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
+  "description": "Backend API for ShortHub URL shortener and Link-in-Bio service",
+  "keywords": ["url-shortener", "bio-link", "mern", "express", "mongodb"],
+  "author": "Manu Kumar Yadav",
+  "license": "MIT",
   "dependencies": {
     "bcryptjs": "^3.0.3",
     "cookie-parser": "^1.4.7",

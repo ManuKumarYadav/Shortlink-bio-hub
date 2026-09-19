@@ -1,7 +1,10 @@
 {
   "name": "client",
   "private": true,
-  "version": "0.0.0",
+  "version": "1.0.0",
+  "description": "Frontend UI for ShortHub URL shortener and Link-in-Bio builder",
+  "author": "Manu Kumar Yadav",
+  "license": "MIT",
   "type": "module",
   "scripts": {
     "dev": "vite",
