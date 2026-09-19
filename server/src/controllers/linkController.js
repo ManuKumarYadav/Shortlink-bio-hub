@@ -39,6 +39,20 @@ const hashIp = (ip) => {
   return crypto.createHash("sha256").update(ip || "unknown").digest("hex");
 };
 
+const getServerBaseUrl = (req) => {
+  if (process.env.SERVER_URL) return process.env.SERVER_URL.replace(/\/$/, "");
+  if (req) {
+    const proto = req.headers["x-forwarded-proto"] || req.protocol || "https";
+    const host = req.get("host");
+    if (host && !host.includes("localhost")) {
+      return `${proto}://${host}`;
+    }
+  }
+  return process.env.NODE_ENV === "production"
+    ? "https://shortlink-bio-hub.onrender.com"
+    : `http://localhost:${process.env.PORT || 5000}`;
+};
+
 const createLink = async (req, res) => {
   try {
     const { destinationUrl, customSlug } = req.body;
@@ -111,7 +125,7 @@ const createLink = async (req, res) => {
       isCustom,
     });
 
-    const serverUrl = process.env.SERVER_URL || `http://localhost:${process.env.PORT || 5000}`;
+    const serverUrl = getServerBaseUrl(req);
     const shortUrl = `${serverUrl}/r/${shortCode}`;
 
     return res.status(201).json({
@@ -178,11 +192,12 @@ const getMyLinks = async (req, res) => {
       clickMap[c._id.toString()] = c.count;
     });
 
+    const serverUrl = getServerBaseUrl(req);
     const formattedLinks = links.map((link) => ({
       id: link._id,
       destinationUrl: link.destinationUrl,
       shortCode: link.shortCode,
-      shortUrl: `${process.env.SERVER_URL || "http://localhost:5000"}/r/${link.shortCode}`,
+      shortUrl: `${serverUrl}/r/${link.shortCode}`,
       isCustom: link.isCustom,
       clicks: clickMap[link._id.toString()] || 0,
       createdAt: link.createdAt,
@@ -230,7 +245,7 @@ const getSingleLink = async (req, res) => {
         id: link._id,
         destinationUrl: link.destinationUrl,
         shortCode: link.shortCode,
-        shortUrl: `${process.env.SERVER_URL || "http://localhost:5000"}/r/${link.shortCode}`,
+        shortUrl: `${getServerBaseUrl(req)}/r/${link.shortCode}`,
         isCustom: link.isCustom,
         clicks,
         createdAt: link.createdAt,
@@ -399,7 +414,7 @@ const getLinkAnalytics = async (req, res) => {
       link: {
         id: link._id,
         shortCode: link.shortCode,
-        shortUrl: `${process.env.SERVER_URL || "http://localhost:5000"}/r/${link.shortCode}`,
+        shortUrl: `${getServerBaseUrl(req)}/r/${link.shortCode}`,
         destinationUrl: link.destinationUrl,
       },
       analytics: {

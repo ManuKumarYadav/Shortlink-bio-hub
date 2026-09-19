@@ -16,14 +16,11 @@ export const QrModal = ({ link, onClose }) => {
     };
   }, []);
 
-  const qrUrl =
-    link?.destinationUrl ||
-    link?.shortUrl ||
-    `${window.location.protocol}//${window.location.host}/r/${link?.shortCode}`;
-
   const shortUrl =
     link?.shortUrl ||
     `${window.location.protocol}//${window.location.host}/r/${link?.shortCode}`;
+
+  const qrUrl = shortUrl;
 
   useEffect(() => {
     if (canvasRef.current && qrUrl) {

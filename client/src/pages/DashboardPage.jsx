@@ -50,9 +50,9 @@ export const DashboardPage = () => {
   const [copiedId, setCopiedId] = useState(null);
 
   // Fetch links from API
-  const fetchLinks = useCallback(async () => {
+  const fetchLinks = useCallback(async (showLoading = true) => {
     try {
-      setLoading(true);
+      if (showLoading) setLoading(true);
       const res = await linkApi.getMyLinks({ page, limit: 10, search });
       if (res.data?.success) {
         setLinks(res.data.links || []);
@@ -65,7 +65,7 @@ export const DashboardPage = () => {
     } catch (err) {
       showToast(err.response?.data?.message || "Failed to load links", "error");
     } finally {
-      setLoading(false);
+      if (showLoading) setLoading(false);
     }
   }, [page, search]);
 
@@ -79,7 +79,7 @@ export const DashboardPage = () => {
   // Auto-refresh when tab gains focus (e.g. after user tests a shortlink in another tab)
   useEffect(() => {
     const handleFocus = () => {
-      fetchLinks();
+      fetchLinks(false);
     };
     window.addEventListener("focus", handleFocus);
     return () => window.removeEventListener("focus", handleFocus);
@@ -87,8 +87,11 @@ export const DashboardPage = () => {
 
   // Aggregate Metrics
   const totalClicksAll = useMemo(() => {
-    if (typeof totalClicks === "number" && totalClicks > 0) return totalClicks;
-    return links.reduce((sum, item) => sum + (item.clicks || 0), 0);
+    const sumClicks = links.reduce((sum, item) => sum + (item.clicks || 0), 0);
+    if (typeof totalClicks === "number") {
+      return Math.max(totalClicks, sumClicks);
+    }
+    return sumClicks;
   }, [totalClicks, links]);
 
   const topPerforming = useMemo(() => {
@@ -583,6 +586,9 @@ export const DashboardPage = () => {
                 href={getFullShortUrl(createdLink.shortCode)}
                 target="_blank"
                 rel="noreferrer"
+                onClick={() => {
+                  setTimeout(() => fetchLinks(false), 1200);
+                }}
                 className="btn btn-primary"
               >
                 <ExternalLink size={15} />
@@ -638,6 +644,22 @@ export const DashboardPage = () => {
               }}
             >
               Custom Slugs
+            </button>
+            <button
+              onClick={() => fetchLinks(false)}
+              className="btn btn-secondary btn-icon"
+              title="Refresh link telemetry"
+              style={{
+                width: "30px",
+                height: "30px",
+                padding: 0,
+                borderRadius: "var(--radius-full)",
+                display: "inline-flex",
+                alignItems: "center",
+                justifyContent: "center",
+              }}
+            >
+              <RefreshCw size={13} className={loading ? "spin" : ""} />
             </button>
           </div>
         </div>
@@ -761,6 +783,9 @@ export const DashboardPage = () => {
                       href={shortUrl}
                       target="_blank"
                       rel="noreferrer"
+                      onClick={() => {
+                        setTimeout(() => fetchLinks(false), 1200);
+                      }}
                       style={{
                         fontSize: "1.1rem",
                         fontWeight: "800",

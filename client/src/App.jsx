@@ -6,6 +6,7 @@ import { AuthPage } from "./pages/AuthPage";
 import { DashboardPage } from "./pages/DashboardPage";
 import { BioBuilderPage } from "./pages/BioBuilderPage";
 import { PublicBioPage } from "./pages/PublicBioPage";
+import { RedirectPage } from "./pages/RedirectPage";
 
 // Protected Route wrapper
 const ProtectedRoute = ({ children }) => {
@@ -47,6 +48,9 @@ function App() {
       <BrowserRouter>
         <ToastContainer />
         <Routes>
+          {/* Public Short Link Redirect */}
+          <Route path="/r/:shortCode" element={<RedirectPage />} />
+
           {/* Public Bio Page without main navbar */}
           <Route path="/bio/:username" element={<PublicBioPage />} />
 
